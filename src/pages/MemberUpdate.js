@@ -1,8 +1,7 @@
-import React, {  useRef, useState } from "react";
+import React, { useState }from "react";
 import styled from "styled-components";
 import HeaderDesign from "../HeaderDesign";
 import AxiosApi from "../api/AxiosApi";
-import Modal from "../utils/Modal";
 
 const Container = styled.div`
   display: flex;
@@ -11,7 +10,8 @@ const Container = styled.div`
   justify-content: space-evenly;
   width: 100%;
   height: 100%;
-.sign {
+
+  .sign {
     display: flex;
     align-items: center;
     flex-direction: column;
@@ -37,20 +37,10 @@ const Container = styled.div`
     font-weight: bold;
     display: flex;
 }
-.idcheck {
-    border-style: none;
-    margin-left: 200px;
-    background-color: #edeae3;
-    border-radius: 5px;
-}
-.idcheck:hover {
-    cursor: pointer;
-}
 .hint {
   display: flex;
   justify-content: center;
   align-items:center;
-  color: red;
 }
 .term {
   border-style: none;
@@ -93,20 +83,10 @@ const Container = styled.div`
   margin-bottom: 10px;
   border: 1px solid;
 }
-.terms {
-    overflow-y: auto;
-    color: black;
-    height: 100%;
-}
 `;
 
-
-
-
-const SignUp = () => {
-
+const MemberUpdate = () => {
     // 키보드 입력
-    const [inputId, setInputId] = useState("");
     const [inputPw, setInputPw] = useState("");
     const [inputConPw, setInputConPw] = useState("");
     const [inputName, setInputName] = useState("");
@@ -120,7 +100,6 @@ const SignUp = () => {
     const [conPwMessage, setConPwMessage] = useState("");
     
     // 유효성 검사
-    const [isId, setIsId] = useState(false);
     const [isPw, setIsPw] = useState(false)
     const [isConPw, setIsConPw] = useState(false);
     const [isName, setIsName] = useState(false);
@@ -128,25 +107,7 @@ const SignUp = () => {
     const [isMail, setIsMail] = useState(false);
     const [isPhone, setIsPhone] = useState(false);
 
-    // 약관 스크롤 다 내려야 체크박스 선택 가능
-    const [ischeckBox, checkboxEnable] = useState(false);
-    const textareaRef = useRef(null);
 
-
-    
-    const onChangeId = (e) => {
-        setInputId(e.target.value)
-    }
-    // 아이디 중복확인
-    const onClickIdCheck = async() => {
-        const response = await AxiosApi.IdCheck(inputId);
-        if(response.data === true) {
-            setIsId(true);
-            console.log("중복된 아이디가 아닙니다.")
-        } else {
-            console.log("중복된 아이디 입니다");
-        }
-    }
     const onChangePw = (e) => {
         const passwordRegex = /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[!@#$%^&*()_+~`|}{[\]\\:';"<>?,./])[A-Za-z\d!@#$%^&*()_+~`|}{[\]\\:';"<>?,./]{8,}$/
         const passwordCurrent = e.target.value ;
@@ -186,51 +147,24 @@ const SignUp = () => {
         setInputPhone(e.target.value);
         setIsPhone(true);
     }
-    const onClickSignUp = async() => {
-        // 로그인을 위해 axios 호출
-        const response = await AxiosApi.MemberSign(inputId, inputPw, inputName, inputJumin, inputEmail, inputPhone);
-        console.log(response.data);
+
+    const onClickUpdate = async() => {
+        const response = await AxiosApi.MemberUpdate(inputPw, inputName, inputJumin, inputEmail, inputPhone)
+        console.log(response.data)
         if(response.data === true) {
-           console.log("회원가입 성공");
+            console.log("회원수정 성공")
         } else {
-            console.log("회원가입 에러");
+            console.log("회원수정 실패")
         }
     }
-    const termsChange = (e) => {
-        const textarea = textareaRef.current;
-        if(textarea.scrollTop === (textarea.scrollHeight - textarea.offsetHeight) && textarea.scrollTop > 0) {
-            checkboxEnable(true);
-        } else {
-            checkboxEnable(false);
-        }
-        console.log(ischeckBox);
-    }
 
-     // 팝업처리(모달)
-     const [modalOpen, setModalOpen] = useState(false);
-     const [modalText, setModalText] = useState("회원가입이 완료되었습니다.");
- 
-     const confirmBtn = () => {
-        setModalOpen(false);
-         console.log("확인 버튼이 눌려 졌습니다.");
-     }
-     const closeModal = () => {
-        setModalOpen(false);
-    };
-
-
-    return(
+    return (
         <Container>
             <HeaderDesign/>
           <div className="sign">
-            <span>회원 가입</span>
+            <span>회원 정보 수정</span>
           </div>
           <hr className="hr"/>
-        <div className="item">
-            <label className="label" for = "id">아이디</label>
-            <input className="input" placeholder="아이디를 입력해주세요" value ={inputId} onChange={onChangeId}/>
-            <button className="idcheck" onClick={onClickIdCheck}>아이디 중복체크</button>          
-        </div>
         <div className="item">
             <label className="label" for = "password">비밀번호</label>
             <input className="input" type="password" placeholder="숫자+영문자+특수문자 조합으로 8자리 이상 입력해주세요" value ={inputPw} onChange={onChangePw}/>
@@ -265,37 +199,11 @@ const SignUp = () => {
         </div>
         <hr className="hr"/>
         <div className="item">
-            <textarea ref={textareaRef} onScroll={termsChange} name="terms" className="terms" cols="100" rows="10" readOnly>[회원가입 이용약관]
-
-1. 이 약관은 서비스 이용자(이하 “회원”)과 [회사명](이하 “회사”)와의 권리 및 의무사항 등 기본적인 사항을 규정함을 목적으로 합니다.
-
-2. 회사는 회원에 대한 이용계약의 성립 여부를 확인하기 위하여 회원의 개인정보를 수집할 수 있습니다. 이 경우 회사는 관련 법령을 준수하며, 개인정보보호정책에 따라 회원의 정보를 보호합니다.
-
-3. 회원은 본 서비스를 이용함으로써 전자적으로 회원을 식별하고, 회원과 회사 간에 커뮤니케이션을 위한 수단으로서 전자우편 주소 등을 사용할 수 있습니다.
-
-4. 회사는 회원이 제공한 정보를 바탕으로 회원의 개인정보를 보호합니다. 회원의 정보는 회사의 개인정보보호정책에 따라 안전하게 관리됩니다.
-
-5. 회사는 회원의 정보를 제3자에게 제공하거나 공유하지 않습니다. 다만, 아래의 경우에는 예외적으로 개인정보를 제공할 수 있습니다.
-- 법적인 요청이 있을 경우
-- 서비스 제공에 필요한 경우
-
-6. 회사는 회원의 권리 보호를 위해 노력합니다. 회원은 개인정보보호관련 법령을 준수해야 하며, 회원의 개인정보를 적극적으로 관리할 책임이 있습니다.
-
-7. 회사는 회원에게 서비스 이용과 관련된 공지사항을 전자적 수단으로 제공할 수 있습니다. 회원은 이에 동의한 것으로 간주됩니다.
-
-8. 회원이 이 약관에 동의함으로써 회사와의 이용계약이 성립됩니다. 회원은 이 약관에 따라 회사가 제공하는 서비스를 이용할 수 있습니다.
-</textarea>
-            <label className="termcheckbox">이용약관 확인 및 동의<input className="checkbox" type="checkbox" checked={ischeckBox} onChange={() => {}} />
-            </label>           
-        </div>
-        <br />
-        <div className="item">
-            {(isId && isPw && isConPw && isName && isJumin && isMail && isPhone) ? 
-            <button className="enable-button" onClick={onClickSignUp} >가입하기</button> :
-            <button className="disable-button">가입하기</button>}
-            <Modal open={modalOpen} type={true} confirm={confirmBtn} close={closeModal} header="회원가입">{modalText}</Modal>
+            {(isPw && isConPw && isName && isJumin && isMail && isPhone) ? 
+            <button className="enable-button" onclick={onClickUpdate} >회원정보수정</button> :
+            <button className="disable-button">회원정보수정</button>}
         </div>
         </Container>
-    )
+    );
 };
-export default SignUp;
+export default MemberUpdate;
